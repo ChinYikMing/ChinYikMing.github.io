@@ -45,7 +45,7 @@ covid.get('summary')
     /* get the date of today */
     todayDate = new Date(res.data.Date);
     let data = document.getElementById("date");
-    date.innerHTML = "Date: " + todayDate.toDateString() + " (" + "updates at 10:15 a.m. every day" + ")";
+    date.innerHTML = "Date: " + todayDate.toDateString() + " (" + "updates at 10:08 a.m. every day" + ")";
   
     insertInfoTable();
   })
