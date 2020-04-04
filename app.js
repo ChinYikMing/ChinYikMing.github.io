@@ -48,8 +48,6 @@ covid.get('summary')
     date.innerHTML = "Date: " + todayDate.toDateString() + " (" + "updates at 10:08 a.m. every day" + ")";
   
     insertInfoTable();
-
-    checkCookie();
   })
   .catch(function (err) {
     // handle error
@@ -218,10 +216,10 @@ function getCookie(cName){
     for(let i = 0; i < cArr.length; i++){
       var c = cArr[i];
       while(c.charAt(0) == ' '){
-        c = c.subString(1);
+        c = c.substring(1);
       }
       if(c.indexOf(name) == 0){
-        return c.subString(name.length, c.length);
+        return c.substring(name.length, c.length);
       }
     }
     return "";
@@ -230,7 +228,7 @@ function getCookie(cName){
 function checkCookie(){
     var name = getCookie("name");
     if(name != ""){
-      alert("Welcome Back" + name)
+      alert("Welcome Back " + name);
     } else {
       name = prompt("Please Enter your name: ");
       if(name != "" && name != NULL){
