@@ -231,7 +231,7 @@ function checkCookie(){
       alert("Welcome Back " + name);
     } else {
       name = prompt("Please Enter your name: ");
-      if(name != "" && name != NULL){
+      if(name != "" && name != null){
         setCookie("name", name, 365);
       }
     }
