@@ -29,14 +29,14 @@ covid.get('summary')
     for(let i = 0; i < countryData.length; i++){
       let value = Object.values(countryData[i]);
       let index = 0;
-      countryName[i] = value[index];
-      slug[i] = value[index+1];
-      newConfirmed[i] = value[index+2];
-      totalConfirmed[i] = value[index+3];
-      newDeaths[i] = value[index+4];
-      totalDeaths[i] = value[index+5];
-      newRecovered[i] = value[index+6];
-      totalRecovered[i] = value[index+7];
+      countryName[i] = value[index + 1];
+      slug[i] = value[index + 3];
+      newConfirmed[i] = value[index + 4];
+      totalConfirmed[i] = value[index + 5];
+      newDeaths[i] = value[index + 6];
+      totalDeaths[i] = value[index + 7];
+      newRecovered[i] = value[index + 8];
+      totalRecovered[i] = value[index + 9];
     }
   
     /* calculate total */
@@ -52,9 +52,6 @@ covid.get('summary')
   .catch(function (err) {
     // handle error
     console.log(err);
-  })
-  .then(function () {
-    // always executed
   })
   .finally(function() {
     //always executed 
