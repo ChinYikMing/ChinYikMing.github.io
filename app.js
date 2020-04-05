@@ -29,14 +29,14 @@ covid.get('summary')
     for(let i = 0; i < countryData.length; i++){
       let value = Object.values(countryData[i]);
       let index = 0;
-      countryName[i] = value[index + 1];
-      slug[i] = value[index + 3];
-      newConfirmed[i] = value[index + 4];
-      totalConfirmed[i] = value[index + 5];
-      newDeaths[i] = value[index + 6];
-      totalDeaths[i] = value[index + 7];
-      newRecovered[i] = value[index + 8];
-      totalRecovered[i] = value[index + 9];
+      countryName[i] = value[index];
+      slug[i] = value[index + 2];
+      newConfirmed[i] = value[index + 3];
+      totalConfirmed[i] = value[index + 4];
+      newDeaths[i] = value[index + 5];
+      totalDeaths[i] = value[index + 6];
+      newRecovered[i] = value[index + 7];
+      totalRecovered[i] = value[index + 8];
     }
   
     /* calculate total */
@@ -70,22 +70,22 @@ function myMatching(){
 }
 
 function calculateData(){
-  for(let i = 2; i < countryName.length; i++){
+  for(let i = 0; i < countryName.length; i++){
     newConfirmedCount += newConfirmed[i];
   }
-  for(let i = 2; i < countryName.length; i++){
+  for(let i = 0; i < countryName.length; i++){
     totalConfirmedCount += totalConfirmed[i];
   }
-  for(let i = 2; i < countryName.length; i++){
+  for(let i = 0; i < countryName.length; i++){
     newDeathsCount += newDeaths[i];
   }
-  for(let i = 2; i < countryName.length; i++){
+  for(let i = 0; i < countryName.length; i++){
     totalDeathsCount += totalDeaths[i];
   }
-  for(let i = 2; i < countryName.length; i++){
+  for(let i = 0; i < countryName.length; i++){
     newRecoveredCount += newRecovered[i];
   }
-  for(let i = 2; i < countryName.length; i++){
+  for(let i = 0; i < countryName.length; i++){
     totalRecoveredCount += totalRecovered[i];
   }
 }
@@ -128,7 +128,7 @@ function insertInfoTable(){
   /* end of thead */
   
   /* tbody */
-  for(let i = 2; i < countryName.length; i++){
+  for(let i = 0; i < countryName.length; i++){
       let body = document.createElement("tr");
       let td1 = document.createElement("td");
       td1.innerHTML = countryName[i];
