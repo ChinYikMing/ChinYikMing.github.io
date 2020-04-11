@@ -11,15 +11,44 @@ var newDeaths = [];
 var totalDeaths = [];
 var newRecovered = [];
 var totalRecovered = [];
-
-var newConfirmedCount = 0;
 var totalConfirmedCount = 0;
-var newDeathsCount = 0;
 var totalDeathsCount = 0;
-var newRecoveredCount = 0;
 var totalRecoveredCount = 0;
-
 var todayDate;
+var chart = new CanvasJS.Chart("chartContainer", {
+	animationEnabled: true,
+	title:{
+		text: "Statistic of Covid-19"
+	},
+	axisX: {
+		valueFormatString: "DD MMM,YY"
+	},
+	axisY: {
+		title: "Population (in people)",
+		includeZero: true,
+		suffix: " people"
+	},
+	legend:{
+		cursor: "pointer",
+		fontSize: 12,
+		itemclick: toggleDataSeries
+	},
+	toolTip:{
+		shared: true
+	},
+  backgroundColor: "#F5DEB3",
+	data: []
+});
+  
+function toggleDataSeries(e){
+	if (typeof(e.dataSeries.visible) === "undefined" || e.dataSeries.visible) {
+		e.dataSeries.visible = false;
+	}
+	else{
+		e.dataSeries.visible = true;
+	}
+	chart.render();
+}
 
 covid.get('summary')
   .then(function (res) {
@@ -30,24 +59,25 @@ covid.get('summary')
       let value = Object.values(countryData[i]);
       let index = 0;
       countryName[i] = value[index];
-      slug[i] = value[index + 2];
-      newConfirmed[i] = value[index + 3];
-      totalConfirmed[i] = value[index + 4];
-      newDeaths[i] = value[index + 5];
-      totalDeaths[i] = value[index + 6];
-      newRecovered[i] = value[index + 7];
-      totalRecovered[i] = value[index + 8];
+      slug[i] = value[index+2];
+      newConfirmed[i] = value[index+3];
+      totalConfirmed[i] = value[index+4];
+      newDeaths[i] = value[index+5];
+      totalDeaths[i] = value[index+6];
+      newRecovered[i] = value[index+7];
+      totalRecovered[i] = value[index+8];
     }
-  
-    /* calculate total */
-    calculateData();
     
     /* get the date of today */
     todayDate = new Date(res.data.Date);
     let data = document.getElementById("date");
     date.innerHTML = "Date: " + todayDate.toDateString() + " (" + "updates at 10:08 a.m. every day" + ")";
   
+    calculateData();
+  
     insertInfoTable();
+    
+    showFirstPage();
   })
   .catch(function (err) {
     // handle error
@@ -60,34 +90,16 @@ covid.get('summary')
 function myMatching(){
   let input = document.getElementById("input").value;
   let tableCell = document.getElementsByTagName("td");
-  for(let i = 0; i < tableCell.length; i+=8){
-    if(tableCell[i].innerHTML.toUpperCase().indexOf(input.toUpperCase()) > -1){
-      tableCell[i].parentNode.style.display = "";
-    }  else {
-      tableCell[i].parentNode.style.display = "none";
+  if(input){
+    for(let i = 0; i < tableCell.length; i+=8){
+      if(tableCell[i].innerHTML.toUpperCase().indexOf(input.toUpperCase()) > -1){
+        tableCell[i].parentNode.style.display = "";
+      }  else {
+        tableCell[i].parentNode.style.display = "none";
+      }
     }
-  }
-}
-
-function calculateData(){
-  for(let i = 0; i < countryName.length; i++){
-    newConfirmedCount += newConfirmed[i];
-  }
-  for(let i = 0; i < countryName.length; i++){
-    totalConfirmedCount += totalConfirmed[i];
-  }
-  for(let i = 0; i < countryName.length; i++){
-    newDeathsCount += newDeaths[i];
-  }
-  for(let i = 0; i < countryName.length; i++){
-    totalDeathsCount += totalDeaths[i];
-  }
-  for(let i = 0; i < countryName.length; i++){
-    newRecoveredCount += newRecovered[i];
-  }
-  for(let i = 0; i < countryName.length; i++){
-    totalRecoveredCount += totalRecovered[i];
-  }
+  } else 
+    showFirstPage();
 }
 
 function insertInfoTable(){
@@ -162,34 +174,6 @@ function insertInfoTable(){
   
   /* tfoot */
   let foot = document.createElement("tr");
-  let td1 = document.createElement("td");
-  td1.innerHTML = countryName.length-2 + " countries";
-  let td2 = document.createElement("td");
-  td2.innerHTML = countryName.length-2 + " slugs";
-  let td3 = document.createElement("td");
-  td3.innerHTML = newConfirmedCount;
-  let td4 = document.createElement("td");
-  td4.innerHTML = totalConfirmedCount;
-  let td5 = document.createElement("td");
-  td5.innerHTML = newDeathsCount;
-  let td6 = document.createElement("td");
-  td6.innerHTML = totalDeathsCount;
-  let td7 = document.createElement("td");
-  td7.innerHTML = newRecoveredCount;
-  let td8 = document.createElement("td");
-  td8.innerHTML = totalRecoveredCount;
-  
-  foot.appendChild(td1);
-  foot.appendChild(td2);
-  foot.appendChild(td3);
-  foot.appendChild(td4);
-  foot.appendChild(td5);
-  foot.appendChild(td6);
-  foot.appendChild(td7);
-  foot.appendChild(td8);
-  
-  tfoot.appendChild(foot);
-  /* end of tfoot */
   
   /* create table */
   table.appendChild(thead);
@@ -199,6 +183,26 @@ function insertInfoTable(){
   tableContainer.appendChild(table);
 }
 
+/* calculate the total data */
+function calculateData(){
+  for(let i = 0; i < countryName.length; ++i)
+    totalConfirmedCount += totalConfirmed[i];
+  
+  for(let i = 0; i < countryName.length; ++i)
+    totalDeathsCount += totalDeaths[i];
+  
+  for(let i = 0; i < countryName.length; ++i)
+    totalRecoveredCount += totalRecovered[i];
+  
+  let tConfirmed = document.getElementById("totalConfirmed");
+  let tDeaths = document.getElementById("totalDeaths");
+  let tRecovered = document.getElementById("totalRecovered");
+  tConfirmed.innerHTML = "Total Confirmed: " + totalConfirmedCount;
+  tDeaths.innerHTML = "Total Deaths: " + totalDeathsCount;
+  tRecovered.innerHTML = "Total Recovered: " + totalRecoveredCount;
+}
+
+/* cookies */
 function setCookie(cName, cValue, exDays){
     var date = new Date();
     date.setTime(date.getTime() + (exDays*24*60*60*1000));
@@ -225,7 +229,7 @@ function getCookie(cName){
 function checkCookie(){
     var name = getCookie("name");
     if(name != ""){
-      alert("Welcome Back " + name);
+      alert("Welcome Back" + name);
     } else {
       name = prompt("Please Enter your name: ");
       if(name != "" && name != null){
@@ -233,4 +237,234 @@ function checkCookie(){
       }
     }
 }
+/* end cookies */
 
+/* Menu Bar */
+let openButton = document.getElementById("openButton");
+openButton.addEventListener("click", ()=>{
+    let h1 = document.getElementsByTagName("h1");
+    let footer = document.getElementsByTagName("footer");
+    let sideBar = document.getElementById("mySideBar");
+    let main = document.getElementById("main");
+    sideBar.style.width = "300px";
+    h1[0].style.marginLeft = "300px";
+    footer[0].style.marginLeft = "300px";
+    main.style.marginLeft = "300px";
+});
+
+let closeButton = document.getElementById("closeButton");
+closeButton.addEventListener("click", ()=>{
+    let h1 = document.getElementsByTagName("h1");
+    let footer = document.getElementsByTagName("footer");
+    let sideBar = document.getElementById("mySideBar");
+    let main = document.getElementById("main");
+    sideBar.style.width = "0";
+    h1[0].style.marginLeft = "0";
+    footer[0].style.marginLeft = "0";
+    main.style.marginLeft = "0";
+});
+/* end menu bar*/
+
+/* to top button */
+let toTopButton = document.getElementById("toTop");
+toTopButton.addEventListener("click", ()=>{
+    document.documentElement.scrollTop = 0;
+});
+
+/* Pagination 1 page contains 50 countries */
+let page1 = document.getElementById("page1");
+let page2 = document.getElementById("page2");
+let page3 = document.getElementById("page3");
+let page4 = document.getElementById("page4");
+let page5 = document.getElementById("page5");
+let currentPage = document.getElementById("currentPage");
+var tableCell = document.getElementsByTagName("td");
+
+page1.addEventListener("click", ()=>{
+    for(let i = 0; i < 400; i+=8)
+      tableCell[i].parentNode.style.display = "";
+    
+    for(let i = 400; i < tableCell.length; i+=8)
+      tableCell[i].parentNode.style.display = "none";
+    
+    currentPage.innerHTML = "1";
+});
+page2.addEventListener("click", ()=>{
+    for(let i = 0; i < 400; i+=8)
+      tableCell[i].parentNode.style.display = "none";
+    
+    for(let i = 400; i < 800; i+=8)
+      tableCell[i].parentNode.style.display = "";
+    
+    for(let i = 800; i < tableCell.length; i+=8)
+      tableCell[i].parentNode.style.display = "none";
+    
+    currentPage.innerHTML = "2";
+});
+page3.addEventListener("click", ()=>{
+    for(let i = 0; i < 800; i+=8)
+      tableCell[i].parentNode.style.display = "none";
+    
+    for(let i = 800; i < 1200; i+=8)
+      tableCell[i].parentNode.style.display = "";
+    
+    for(let i = 1200; i < tableCell.length; i+=8)
+      tableCell[i].parentNode.style.display = "none";
+    
+    currentPage.innerHTML = "3";
+});
+page4.addEventListener("click", ()=>{
+    for(let i = 0; i < 1200; i+=8)
+      tableCell[i].parentNode.style.display = "none";
+    
+    for(let i = 1200; i < 1600; i+=8)
+      tableCell[i].parentNode.style.display = "";
+    
+    for(let i = 1600; i < tableCell.length; i+=8)
+      tableCell[i].parentNode.style.display = "none";
+    
+    currentPage.innerHTML = "4";
+});
+page5.addEventListener("click", ()=>{
+    for(let i = 0; i < 1600; i+=8)
+      tableCell[i].parentNode.style.display = "none";
+    
+    for(let i = 1600; i < tableCell.length; i+=8)
+      tableCell[i].parentNode.style.display = "";
+    
+    currentPage.innerHTML = "5";
+});
+
+function showFirstPage(){
+  for(let i = 0; i < 400; i+=8){
+     tableCell[i].parentNode.style.display = "";
+  }
+  for(let i = 400; i < tableCell.length; i+=8){
+    tableCell[i].parentNode.style.display = "none";
+  }
+  
+  let chartContainer = document.getElementById("chartContainer");
+  chartContainer.style.display = "none";
+}
+/* end pagination */
+
+/* statistic */
+function statsRequest(){
+    let input = document.getElementById("input").value;
+    if(input === null)
+      return;
+    var countryName = input.charAt(0).toUpperCase() + input.slice(1);
+    var xhrC = new XMLHttpRequest();
+    xhrC.onreadystatechange = function(){
+      if(this.readyState === 4 && this.status === 200){
+        var type = this.getResponseHeader("Content-type");
+        if(type.indexOf("application/json") > -1){
+          var data = JSON.parse(this.responseText);
+          var confirmedData = {
+              name: "",
+              type: "spline",
+              yValueFormatString: "###### people",
+              showInLegend: true,
+              dataPoints: []
+          };
+          confirmedData.name = "Confirmed in " + countryName;
+          for(let i = 0; i < data.length; ++i)
+             confirmedData.dataPoints.push({x: new Date(data[i].Date), y: data[i].Cases});
+          chart.options.data.push(confirmedData); 
+        }
+      }
+    }
+    var xhrD = new XMLHttpRequest();
+    xhrD.onreadystatechange = function(){
+      if(this.readyState === 4 && this.status === 200){
+        var type = this.getResponseHeader("Content-type");
+        if(type.indexOf("application/json") > -1){
+          var data = JSON.parse(this.responseText);
+          var deathsData = {
+              name: "",
+              type: "spline",
+              yValueFormatString: "###### people",
+              showInLegend: true,
+              dataPoints: []
+          };
+          deathsData.name = "Deaths in " + countryName;
+          for(let i = 0; i < data.length; ++i)
+            deathsData.dataPoints.push({x: new Date(data[i].Date), y: data[i].Cases});
+          chart.options.data.push(deathsData);
+        }
+      }
+    }
+    var xhrR = new XMLHttpRequest();
+    xhrR.onreadystatechange = function(){
+      if(this.readyState === 4 && this.status === 200){
+        var type = this.getResponseHeader("Content-type");
+        if(type.indexOf("application/json") > -1){
+          var data = JSON.parse(this.responseText);
+          var recoveredData = {
+              name: "recovered",
+              type: "spline",
+              yValueFormatString: "###### people",
+              showInLegend: true,
+              dataPoints: []
+          };
+          recoveredData.name = "Recovered in " + countryName;
+          for(let i = 0; i < data.length; ++i)
+            recoveredData.dataPoints.push({x: new Date(data[i].Date), y: data[i].Cases});
+          chart.options.data.push(recoveredData);
+        }
+      }
+    }
+    xhrC.open("GET", "https://api.covid19api.com/dayone/country/" + countryName + "/status/confirmed/live");
+    xhrD.open("GET", "https://api.covid19api.com/dayone/country/" + countryName + "/status/deaths/live");
+    xhrR.open("GET", "https://api.covid19api.com/dayone/country/" + countryName + "/status/recovered/live");
+    xhrC.send();
+    xhrD.send();
+    xhrR.send();
+}
+
+function insertStats() {
+    statsRequest();
+    chart.render();
+}
+
+function showPlot(){
+  let tableContainer = document.getElementById("tableContainer");
+  let chartContainer = document.getElementById("chartContainer");
+  let pagination = document.getElementById("pagination");
+  pagination.style.display = "none";
+  tableContainer.style.display = "none";
+  chartContainer.style.display = "";
+  
+  let search = document.getElementById("search");
+  let input = document.getElementById("input");
+  input.onkeyup = "";
+  let searchButton = document.getElementById("statSearchButton");
+  if(searchButton){
+    searchButton.style.display = "";
+    input.placeholder = "Search for a country's stats e.g. Italy";
+  }
+  
+  if(searchButton === null){
+    let statSearchButton = document.createElement("button");
+    statSearchButton.id = "statSearchButton";
+    statSearchButton.innerHTML = "Search";
+    statSearchButton.addEventListener("click", insertStats);
+    input.placeholder = "Search for a country's stats e.g. Italy";
+    search.appendChild(statSearchButton);
+  }
+}
+
+function showMainData(){
+  let tableContainer = document.getElementById("tableContainer");
+  let chartContainer = document.getElementById("chartContainer");
+  let input = document.getElementById("input");
+  let pagination = document.getElementById("pagination");
+  let statSearchButton = document.getElementById("statSearchButton");
+  statSearchButton.style.display = "none";
+  pagination.style.display = "";
+  input.placeholder = "Search for a country e.g. Italy";
+  input.setAttribute("onkeyup", "myMatching()");
+  chartContainer.style.display = "none";
+  tableContainer.style.display = "";
+  showFirstPage();
+}
